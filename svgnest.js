@@ -2,12 +2,14 @@
  * SvgNest
  * Licensed under the MIT license
  */
- 
+//import { DollarRecognizer } from "./oneDoller";
+
+import DollarRecognizer from './oneDoller.js';
+
 (function(root){
 	'use strict';
-
-	root.SvgNest = new SvgNest();
 	
+	root.SvgNest = new SvgNest();
 	function SvgNest(){
 		var self = this;
 		
@@ -42,7 +44,8 @@
 		var best = null;
 		var workerTimer = null;
 		var progress = 0;
-		
+		var startTime, endTime;
+
 		this.parsesvg = function(svgstring){
 			// reset if in progress
 			this.stop();
@@ -128,22 +131,32 @@
 		
 		// progressCallback is called when progress is made
 		// displayCallback is called when a new placement has been made
-		this.start = function(progressCallback, displayCallback){						
+		this.start = function(progressCallback, displayCallback){	
+			startTime = new Date();
+			endTime = new Date();
+			var timeDiff = endTime - startTime;
+			console.log("start")
+			console.log(timeDiff)
+
+
 			if(!svg || !bin){
 				return false;
 			}
+
 			
 			parts = Array.prototype.slice.call(svg.childNodes);
 			var binindex = parts.indexOf(bin);
-			
+
 			if(binindex >= 0){
 				// don't process bin as a part of the tree
 				parts.splice(binindex, 1);
 			}
-			
 			// build tree without bin
 			tree = this.getParts(parts.slice(0));
-			
+
+			// just to make it easier
+			tree = tree.slice(0,3)
+		
 			offsetTree(tree, 0.5*config.spacing, this.polygonOffset.bind(this));
 
 			// offset tree recursively
@@ -160,10 +173,8 @@
 					}
 				}
 			}
-			
 			binPolygon = SvgParser.polygonify(bin);
 			binPolygon = this.cleanPolygon(binPolygon);
-						
 			if(!binPolygon || binPolygon.length < 3){
 				return false;
 			}
@@ -227,17 +238,25 @@
 				}
 			}
 			
+
 			var self = this;
 			this.working = false;
 			
 			workerTimer = setInterval(function(){
+
+
+
 				if(!self.working){
 					self.launchWorkers.call(self, tree, binPolygon, config, progressCallback, displayCallback);
 					self.working = true;
 				}
 				
+				
 				progressCallback(progress);
 			}, 100);
+
+
+	
 		}
 		
 		this.launchWorkers = function(tree, binPolygon, config, progressCallback, displayCallback){
@@ -263,9 +282,9 @@
 			var i,j;
 			
 			if(GA === null){
-				// initiate new GA
+				// initiate new GA  adam == tree
 				var adam = tree.slice(0);
-
+		
 				// seed with decreasing area
 				adam.sort(function(a, b){
 					return Math.abs(GeometryUtil.polygonArea(b)) - Math.abs(GeometryUtil.polygonArea(a));
@@ -326,9 +345,14 @@
 			
 			// only keep cache for one cycle
 			nfpCache = newCache;
-			
-			var worker = new PlacementWorker(binPolygon, placelist.slice(0), ids, rotations, config, nfpCache);
-			
+		
+			let recognizer = new DollarRecognizer(placelist.length,placelist)
+
+
+			var worker = new PlacementWorker(binPolygon, placelist.slice(0), ids, rotations, config, nfpCache,recognizer);
+	
+           
+
 			var p = new Parallel(nfpPairs, {
 				env: {
 					binPolygon: binPolygon,
@@ -546,8 +570,9 @@
 				p2.require('matrix.js');
 				p2.require('geometryutil.js');
 				p2.require('placementworker.js');				
-				
+				//debugger;
 				p2.map(worker.placePaths).then(function(placements){
+					//debugger;
 					if(!placements || placements.length == 0){
 						return;
 					}

@@ -46,14 +46,14 @@ function rotatePolygon(polygon, degrees){
 	return rotated;
 };
 
-function PlacementWorker(binPolygon, paths, ids, rotations, config, nfpCache){
+function PlacementWorker(binPolygon, paths, ids, rotations, config, nfpCache,recognizer){
 	this.binPolygon = binPolygon;
 	this.paths = paths;
 	this.ids = ids;
 	this.rotations = rotations;
 	this.config = config;
 	this.nfpCache = nfpCache || {};
-	
+	this.recognizer = recognizer
 	// return a placement for the paths/rotations given
 	// happens inside a webworker
 	this.placePaths = function(paths){
@@ -209,7 +209,7 @@ function PlacementWorker(binPolygon, paths, ids, rotations, config, nfpCache){
 					f.push(toNestCoordinates(finalNfp[j], self.config.clipperScale));
 				}
 				finalNfp = f;
-				
+				// new code here??? 
 				// choose placement that results in the smallest bounding box
 				// could use convex hull instead, but it can create oddly shaped nests (triangles or long slivers) which are not optimal for real-world use
 				// todo: generalize gravity direction
