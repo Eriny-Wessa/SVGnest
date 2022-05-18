@@ -56,7 +56,7 @@ const Phi = 0.5 * (-1.0 + Math.sqrt(5.0)); // Golden Ratio
 export default function DollarRecognizer(NumberOfPoints, placments) // constructor
 {
 	
-	this.Recognize = function(points, useProtractor)
+	this.Recognize = function(points, useProtractor,ignoreindex)
 	{
 		var t0 = Date.now();
 		var candidate = new Unistroke("", points);
@@ -65,19 +65,50 @@ export default function DollarRecognizer(NumberOfPoints, placments) // construct
 		var b = +Infinity;
 		for (var i = 0; i < this.Unistrokes.length; i++) // for each unistroke template
 		{
-			var d;
-			if (useProtractor)
-				d = OptimalCosineDistance(this.Unistrokes[i].Vector, candidate.Vector); // Protractor
-			else
-				d = DistanceAtBestAngle(candidate.Points, this.Unistrokes[i], -AngleRange, +AngleRange, AnglePrecision); // Golden Section Search (original $1)
-			if (d < b) {
-				b = d; // best (least) distance
-				u = i; // unistroke index
+			if (ignoreindex != i)
+			{
+				var d;
+				if (useProtractor)
+					d = OptimalCosineDistance(this.Unistrokes[i].Vector, candidate.Vector); // Protractor
+				else
+					d = DistanceAtBestAngle(candidate.Points, this.Unistrokes[i], -AngleRange, +AngleRange, AnglePrecision); // Golden Section Search (original $1)
+			
+				if (d < b) {
+					b = d; // best (least) distance
+					u = i; // unistroke index
+				}
 			}
+			
+		
 		}
 		var t1 = Date.now();
 		return (u == -1) ? new Result("No match.", 0.0, t1-t0) : new Result(this.Unistrokes[u].Name, useProtractor ? (1.0 - b) : (1.0 - b / HalfDiagonal), t1-t0);
 	}
+
+	this.Compare = function(ObjectX, ObjectY)
+	{
+
+		let points=[]
+		for(let k = 0; k<ObjectX[0].length ; k++)
+		{
+			points.push(new Point(ObjectX[0][k].x,ObjectX[0][k].y));
+		}
+		let UniX = new Unistroke("X", points); 
+
+
+		points=[]
+		for(let k = 0; k<ObjectY[0].length ; k++)
+		{
+			points.push(new Point(ObjectY[0][K].x,ObjectY[0][k].y));
+		}
+		let UniY = new Unistroke("Y", points); 
+
+
+
+		let d = OptimalCosineDistance(UniX.Vector, UniY.Vector);
+		return (1.0 - d)
+	}
+
 	this.AddGesture = function(name, points)
 	{
 		this.Unistrokes[this.Unistrokes.length] = new Unistroke(name, points); // append new unistroke
@@ -93,34 +124,13 @@ export default function DollarRecognizer(NumberOfPoints, placments) // construct
 		this.Unistrokes.length = NumUnistrokes; // clear any beyond the original set
 		return NumUnistrokes;
 	}
-	
 
 
-
-	/// constractor
-	const NumUnistrokes = NumberOfPoints;
-
-	this.Unistrokes=[]
-
-
-
-	for (let i=0;i< NumUnistrokes;i++)
-	{
-
-		let id = String (placments[i].id)
-		let points=[]
-		for(let k = 0; k<placments[i].length ; k++)
-		{
-			points.push(new Point(placments[i][k].x,placments[i][k].y));
-		}
-
-		this.AddGesture(id,points);
-	}
-
-
-
-
-
+	///test
+	//console.log(this.Unistrokes[1].Points)
+	//let r=this.Recognize(this.Unistrokes[2].Points,false,1);
+	//console.log(r)
+	//console.log(this.Compare(0,1))
 }
 
 //

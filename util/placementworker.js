@@ -82,7 +82,7 @@ function PlacementWorker(binPolygon, paths, ids, rotations, config, nfpCache,rec
 		var fitness = 0;
 		var binarea = Math.abs(GeometryUtil.polygonArea(self.binPolygon));
 		var key, nfp;
-		
+		var SimCost = 0
 		while(paths.length > 0){
 			
 			var placed = [];
@@ -261,11 +261,19 @@ function PlacementWorker(binPolygon, paths, ids, rotations, config, nfpCache,rec
 					placed.push(path);
 					placements.push(position);
 				}
+
 			}
 			
 			if(minwidth){
 				fitness += minwidth/binarea;
 			}
+			
+
+
+
+	
+			
+			
 			
 			for(i=0; i<placed.length; i++){
 				var index = paths.indexOf(placed[i]);
@@ -285,6 +293,19 @@ function PlacementWorker(binPolygon, paths, ids, rotations, config, nfpCache,rec
 		// there were parts that couldn't be placed
 		fitness += 2*paths.length;
 		
+
+
+
+		for (i =0 ; i<allplacements.length -1 ;i++ )
+		{
+			SimCost += recognizer.Compare(allplacements[i],allplacements[i+1]) // sum all the similarties
+		}
+		SimCost = SimCost / allplacements.length // ratio overall simalarty 
+
+		SimCost = 1 - SimCost // ratio overall diffrence
+
+		fitness += SimCost // because less fitness is better
+
 		return {placements: allplacements, fitness: fitness, paths: paths, area: binarea };
 	};
 

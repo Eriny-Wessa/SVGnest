@@ -155,7 +155,7 @@ import DollarRecognizer from './oneDoller.js';
 			tree = this.getParts(parts.slice(0));
 
 			// just to make it easier
-			tree = tree.slice(0,3)
+			//tree = tree.slice(0,3)
 		
 			offsetTree(tree, 0.5*config.spacing, this.polygonOffset.bind(this));
 
@@ -347,8 +347,6 @@ import DollarRecognizer from './oneDoller.js';
 			nfpCache = newCache;
 		
 			let recognizer = new DollarRecognizer(placelist.length,placelist)
-
-
 			var worker = new PlacementWorker(binPolygon, placelist.slice(0), ids, rotations, config, nfpCache,recognizer);
 	
            
@@ -593,14 +591,31 @@ import DollarRecognizer from './oneDoller.js';
 						var totalArea = 0;
 						var numParts = placelist.length;
 						var numPlacedParts = 0;
-						
+						var min_width=9999999999999999
+						var poly;
+						var calc_width=0
+						var binarea =0
+						var BIN
 						for(i=0; i<best.placements.length; i++){
-							totalArea += Math.abs(GeometryUtil.polygonArea(binPolygon));
+							//totalArea += Math.abs(GeometryUtil.polygonArea(binPolygon));
+							
+							 min_width=9999999999999999
 							for(var j=0; j<best.placements[i].length; j++){
 								placedArea += Math.abs(GeometryUtil.polygonArea(tree[best.placements[i][j].id]));
 								numPlacedParts++;
+								poly = GeometryUtil.getPolygonBounds(tree[best.placements[i][j].id]);
+								calc_width= poly.width + poly.x
+								if(calc_width < min_width && calc_width!=0)
+								{
+									min_width = calc_width
+								}
 							}
+							BIN = GeometryUtil.getPolygonBounds(binPolygon)
+							binarea =  (BIN.y + BIN.height) * calc_width
+							totalArea += binarea
 						}
+
+						
 						displayCallback(self.applyPlacement(best.placements), placedArea/totalArea, numPlacedParts, numParts);
 					}
 					else{
