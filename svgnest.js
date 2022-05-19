@@ -151,12 +151,25 @@ import DollarRecognizer from './oneDoller.js';
 				// don't process bin as a part of the tree
 				parts.splice(binindex, 1);
 			}
-			// build tree without bin
-			tree = this.getParts(parts.slice(0));
 
-			// just to make it easier
-			//tree = tree.slice(0,3)
+			//simple version
+			var wanted_indexes=[27,25,52,87,57,55,70,79,130,19,10]
+			wanted_indexes = wanted_indexes.sort(() => Math.random() - 0.5)
+			var simple_parts=[]
+			for(var s = 0; s<wanted_indexes.length;s++)
+			{
+				simple_parts.push(parts[wanted_indexes[s]]);
+			}
+
+			// toggle simple version
+			parts = simple_parts
+			
+			
+			//build tree without bin
+			tree = this.getParts(parts.slice(0));
 		
+
+
 			offsetTree(tree, 0.5*config.spacing, this.polygonOffset.bind(this));
 
 			// offset tree recursively
@@ -591,28 +604,18 @@ import DollarRecognizer from './oneDoller.js';
 						var totalArea = 0;
 						var numParts = placelist.length;
 						var numPlacedParts = 0;
-						var min_width=9999999999999999
-						var poly;
-						var calc_width=0
-						var binarea =0
-						var BIN
+			
 						for(i=0; i<best.placements.length; i++){
-							//totalArea += Math.abs(GeometryUtil.polygonArea(binPolygon));
-							
-							 min_width=9999999999999999
+	
 							for(var j=0; j<best.placements[i].length; j++){
 								placedArea += Math.abs(GeometryUtil.polygonArea(tree[best.placements[i][j].id]));
 								numPlacedParts++;
-								poly = GeometryUtil.getPolygonBounds(tree[best.placements[i][j].id]);
-								calc_width= poly.width + poly.x
-								if(calc_width < min_width && calc_width!=0)
-								{
-									min_width = calc_width
-								}
+							
 							}
-							BIN = GeometryUtil.getPolygonBounds(binPolygon)
-							binarea =  (BIN.y + BIN.height) * calc_width
-							totalArea += binarea
+							
+						
+							totalArea += best.contained_area
+						
 						}
 
 						

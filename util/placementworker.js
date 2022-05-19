@@ -58,6 +58,8 @@ function PlacementWorker(binPolygon, paths, ids, rotations, config, nfpCache,rec
 	// happens inside a webworker
 	this.placePaths = function(paths){
 
+		//document.write("hello");
+		//console.log("heellloo");
 		var self = global.env.self;
 
 		if(!self.binPolygon){
@@ -209,7 +211,7 @@ function PlacementWorker(binPolygon, paths, ids, rotations, config, nfpCache,rec
 					f.push(toNestCoordinates(finalNfp[j], self.config.clipperScale));
 				}
 				finalNfp = f;
-				// new code here??? 
+				
 				// choose placement that results in the smallest bounding box
 				// could use convex hull instead, but it can create oddly shaped nests (triangles or long slivers) which are not optimal for real-world use
 				// todo: generalize gravity direction
@@ -254,6 +256,7 @@ function PlacementWorker(binPolygon, paths, ids, rotations, config, nfpCache,rec
 							minwidth = rectbounds.width;
 							position = shiftvector;
 							minx = shiftvector.x;
+							var contained_area = rectbounds.width*rectbounds.height;
 						}
 					}
 				}
@@ -294,11 +297,11 @@ function PlacementWorker(binPolygon, paths, ids, rotations, config, nfpCache,rec
 		fitness += 2*paths.length;
 		
 
-
-
+		
+		// decreaseing simCost 
 		for (i =0 ; i<allplacements.length -1 ;i++ )
 		{
-			SimCost += recognizer.Compare(allplacements[i],allplacements[i+1]) // sum all the similarties
+			SimCost+= recognizer.Compare(allplacements[i],allplacements[i+1]) // sum all the similarties
 		}
 		SimCost = SimCost / allplacements.length // ratio overall simalarty 
 
@@ -306,7 +309,7 @@ function PlacementWorker(binPolygon, paths, ids, rotations, config, nfpCache,rec
 
 		fitness += SimCost // because less fitness is better
 
-		return {placements: allplacements, fitness: fitness, paths: paths, area: binarea };
+		return {placements: allplacements, fitness: fitness, paths: paths, area: binarea, contained_area:contained_area };
 	};
 
 }
