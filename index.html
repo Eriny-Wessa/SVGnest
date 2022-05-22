@@ -456,7 +456,8 @@
 				}
 				
 				if(efficiency || efficiency === 0){
-					document.getElementById('info_efficiency').innerHTML = Math.round(efficiency*100);
+					//document.getElementById('info_efficiency').innerHTML = Math.round(efficiency*100);
+					document.getElementById('info_efficiency').innerHTML = efficiency*100;
 				}
 
 				document.getElementById('info_placed').innerHTML = placed+'/'+total;

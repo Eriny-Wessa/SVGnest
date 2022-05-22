@@ -82,6 +82,8 @@ import DollarRecognizer from './oneDoller.js';
 				return;
 			}
 			bin = element;
+		
+			console.log(Array.prototype.slice.call(svg.childNodes).indexOf(bin))
 		}
 		
 		this.config = function(c){
@@ -133,10 +135,10 @@ import DollarRecognizer from './oneDoller.js';
 		// displayCallback is called when a new placement has been made
 		this.start = function(progressCallback, displayCallback){	
 			startTime = new Date();
-			endTime = new Date();
-			var timeDiff = endTime - startTime;
-			console.log("start")
-			console.log(timeDiff)
+			//endTime = new Date();
+			//var timeDiff = endTime - startTime;
+			//console.log("start")
+			//console.log(timeDiff)
 
 
 			if(!svg || !bin){
@@ -853,6 +855,10 @@ import DollarRecognizer from './oneDoller.js';
 		}
 		
 		this.stop = function(){
+			endTime = new Date();
+			var timeDiff = endTime - startTime;
+			console.log("stop")
+			console.log(timeDiff)
 			this.working = false;
 			if(workerTimer){
 				clearInterval(workerTimer);
