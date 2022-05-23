@@ -6,6 +6,8 @@
 
 import DollarRecognizer from './oneDoller.js';
 
+var startTime, endTime;
+
 (function(root){
 	'use strict';
 	
@@ -44,7 +46,7 @@ import DollarRecognizer from './oneDoller.js';
 		var best = null;
 		var workerTimer = null;
 		var progress = 0;
-		var startTime, endTime;
+		var Iterations =1
 
 		this.parsesvg = function(svgstring){
 			// reset if in progress
@@ -598,7 +600,7 @@ import DollarRecognizer from './oneDoller.js';
 							bestresult = placements[i];
 						}
 					}
-					
+					//debugger;
 					if(!best || bestresult.fitness < best.fitness){
 						best = bestresult;
 						
@@ -612,21 +614,23 @@ import DollarRecognizer from './oneDoller.js';
 							for(var j=0; j<best.placements[i].length; j++){
 								placedArea += Math.abs(GeometryUtil.polygonArea(tree[best.placements[i][j].id]));
 								numPlacedParts++;
-							
 							}
 							
 						
 							totalArea += best.contained_area
 						
 						}
-
 						
+						self.createCSV(totalArea, 1,bestresult.fitness,placedArea);
 						displayCallback(self.applyPlacement(best.placements), placedArea/totalArea, numPlacedParts, numParts);
 					}
 					else{
+						self.createCSV(bestresult.contained_area,0,bestresult.fitness,0);
 						displayCallback();
 					}
+					
 					self.working = false;
+					
 				}, function (err) {
 					console.log(err);
 				});
@@ -855,15 +859,54 @@ import DollarRecognizer from './oneDoller.js';
 		}
 		
 		this.stop = function(){
-			endTime = new Date();
-			var timeDiff = endTime - startTime;
-			console.log("stop")
-			console.log(timeDiff)
 			this.working = false;
 			if(workerTimer){
 				clearInterval(workerTimer);
 			}
+
+			endTime = new Date();
+			var timeDiff = endTime - startTime;
+			console.log("stop")
+			console.log(timeDiff)
+			if(timeDiff>200){	this.saveCSV()}
+		
+		
 		};
+
+
+		
+		//define the heading for each row of the data
+		var csv = 'Iterations,time since start,Area,isbest,fitness,placedarea\n';
+		var csvFileData = [];
+		this.createCSV= function(Area,isbest,fitness,placedArea){
+
+			endTime = new Date();
+			var timeDiff = endTime - startTime;
+			var row = [Iterations.toString(),timeDiff.toString(),(Area*100).toString(),isbest.toString(),fitness.toString(),placedArea.toString()]
+			csvFileData.push(row);
+			Iterations++;
+		};
+		var filename = "similarity code simple";
+		this.saveCSV=function(){
+				//merge the data with CSV
+				csvFileData.forEach(function(row) {
+					csv += row.join(',');
+					csv += "\n";
+			});
+		
+			//display the created CSV data on the web browser 
+			//document.write(csv);
+		
+		
+			var hiddenElement = document.createElement('a');
+			hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+			hiddenElement.target = '_blank';
+			
+			//provide the name for the CSV file to be downloaded
+			hiddenElement.download = filename+'.csv';
+			hiddenElement.click();
+		};
+
 	}
 	
 	function GeneticAlgorithm(adam, bin, config){
@@ -1033,5 +1076,6 @@ import DollarRecognizer from './oneDoller.js';
 		
 		return pop[0];
 	}
+	
 	
 })(window);
