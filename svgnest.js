@@ -166,7 +166,7 @@ var startTime, endTime;
 			}
 
 			// toggle simple version
-			parts = simple_parts
+			//parts = simple_parts
 			
 			
 			//build tree without bin
@@ -363,8 +363,9 @@ var startTime, endTime;
 			// only keep cache for one cycle
 			nfpCache = newCache;
 		
-			let recognizer = new DollarRecognizer(placelist.length,placelist)
-			var worker = new PlacementWorker(binPolygon, placelist.slice(0), ids, rotations, config, nfpCache,recognizer);
+			let recognizer = new DollarRecognizer()
+			console.log(placelist)
+			var worker = new PlacementWorker(binPolygon, placelist.slice(0), ids, rotations, config, nfpCache);
 	
            
 
@@ -585,9 +586,9 @@ var startTime, endTime;
 				p2.require('matrix.js');
 				p2.require('geometryutil.js');
 				p2.require('placementworker.js');				
-				//debugger;
+				
 				p2.map(worker.placePaths).then(function(placements){
-					//debugger;
+					
 					if(!placements || placements.length == 0){
 						return;
 					}
@@ -596,12 +597,12 @@ var startTime, endTime;
 					var bestresult = placements[0];
 					
 					for(var i=1; i<placements.length; i++){
-						if(placements[i].fitness < bestresult.fitness){
+						if(placements[i].contained_area < bestresult.contained_area){
 							bestresult = placements[i];
 						}
 					}
-					//debugger;
-					if(!best || bestresult.fitness < best.fitness){
+					
+					if(!best || bestresult.contained_area < best.contained_area){
 						best = bestresult;
 						
 						var placedArea = 0;
