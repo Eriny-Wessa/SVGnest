@@ -53,7 +53,7 @@ const Phi = 0.5 * (-1.0 + Math.sqrt(5.0)); // Golden Ratio
 //
 // DollarRecognizer class
 //
-export default function DollarRecognizer(NumberOfPoints, placments) // constructor
+export default function DollarRecognizer() // constructor
 {
 	
 	this.Recognize = function(points, useProtractor,ignoreindex)
@@ -217,12 +217,15 @@ function OptimalCosineDistance(v1, v2) // for Protractor
 {
 	var a = 0.0;
 	var b = 0.0;
+	// 1  2  3  4  v1
+	// 5  6  7  8  v2
 	for (var i = 0; i < v1.length; i += 2) {
-		a += v1[i] * v2[i] + v1[i+1] * v2[i+1];
-		b += v1[i] * v2[i+1] - v1[i+1] * v2[i];
+		a += v1[i] * v2[i] + v1[i+1] * v2[i+1]; // dot product
+		b += v1[i] * v2[i+1] - v1[i+1] * v2[i]; // cross product
 	}
 	var angle = Math.atan(b / a);
-	return Math.acos(a * Math.cos(angle) + b * Math.sin(angle));
+	// tan = cross/dot
+	return Math.acos(a * Math.cos(angle) + b * Math.sin(angle)); // this is the dashed line
 }
 function DistanceAtBestAngle(points, T, a, b, threshold)
 {

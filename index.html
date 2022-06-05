@@ -66,6 +66,7 @@
 			
 			demo.onclick = function(){
 				try{
+					console.log(display.innerHTML)
 					var svg = window.SvgNest.parsesvg(display.innerHTML);
 					display.innerHTML = '';
 					display.appendChild(svg);

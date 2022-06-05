@@ -364,8 +364,8 @@ var startTime, endTime;
 			nfpCache = newCache;
 		
 			let recognizer = new DollarRecognizer()
-			console.log(placelist)
-			var worker = new PlacementWorker(binPolygon, placelist.slice(0), ids, rotations, config, nfpCache);
+		
+			var worker = new PlacementWorker(binPolygon, placelist.slice(0), ids, rotations, config, nfpCache,recognizer);
 	
            
 
@@ -622,11 +622,11 @@ var startTime, endTime;
 						
 						}
 						
-						self.createCSV(totalArea, 1,bestresult.fitness,placedArea);
+						self.createCSV(best.contained_area, 1,best.fitness,placedArea);
 						displayCallback(self.applyPlacement(best.placements), placedArea/totalArea, numPlacedParts, numParts);
 					}
 					else{
-						self.createCSV(bestresult.contained_area,0,bestresult.fitness,0);
+						self.createCSV(best.contained_area,0,best.fitness,0);
 						displayCallback();
 					}
 					
