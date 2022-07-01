@@ -4,7 +4,7 @@
  */
 //import { DollarRecognizer } from "./oneDoller";
 
-import DollarRecognizer from './oneDoller.js';
+
 
 var startTime, endTime;
 
@@ -34,7 +34,7 @@ var startTime, endTime;
 			curveTolerance: 0.3, 
 			spacing: 0,
 			rotations: 4,
-			populationSize: 10,
+			populationSize: 100,
 			mutationRate: 10,
 			useHoles: false,
 			exploreConcave: false
@@ -363,9 +363,9 @@ var startTime, endTime;
 			// only keep cache for one cycle
 			nfpCache = newCache;
 		
-			let recognizer = new DollarRecognizer()
+
 		
-			var worker = new PlacementWorker(binPolygon, placelist.slice(0), ids, rotations, config, nfpCache,recognizer);
+			var worker = new PlacementWorker(binPolygon, placelist.slice(0), ids, rotations, config, nfpCache);
 	
            
 
@@ -382,6 +382,7 @@ var startTime, endTime;
 			p.require('geometryutil.js');
 			p.require('placementworker.js');
 			p.require('clipper.js');
+
 			
 			var self = this;
 			var spawncount = 0;
