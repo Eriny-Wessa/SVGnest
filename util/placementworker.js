@@ -334,7 +334,7 @@ function PlacementWorker(binPolygon, paths, ids, rotations, config, nfpCache){
 			}
 			
 
-
+			/// fitness = contained
 
 	
 			
