@@ -330,10 +330,13 @@ function PlacementWorker(binPolygon, paths, ids, rotations, config, nfpCache){
 			}
 			
 			if(minwidth){
-				fitness += minwidth/binarea;
+			//	fitness += minwidth/binarea;
 			}
 			
-
+			if (contained_area)
+			{
+				fitness+=contained_area
+			}
 			/// fitness = contained
 
 	

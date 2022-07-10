@@ -34,7 +34,7 @@ var startTime, endTime;
 			curveTolerance: 0.3, 
 			spacing: 0,
 			rotations: 4,
-			populationSize: 100,
+			populationSize: 20,
 			mutationRate: 10,
 			useHoles: false,
 			exploreConcave: false
@@ -913,7 +913,7 @@ var startTime, endTime;
 	
 	function GeneticAlgorithm(adam, bin, config){
 	
-		this.config = config || { populationSize: 10, mutationRate: 10, rotations: 4 };
+		this.config = config || { populationSize: 20, mutationRate: 10, rotations: 4 };
 		this.binBounds = GeometryUtil.getPolygonBounds(bin);
 		
 		// population is an array of individuals. Each individual is a object representing the order of insertion and the angle each part is rotated
@@ -987,31 +987,63 @@ var startTime, endTime;
 		return clone;
 	}
 	
-	// single point crossover
+	
+	// position passed 
 	GeneticAlgorithm.prototype.mate = function(male, female){
-		var cutpoint = Math.round(Math.min(Math.max(Math.random(), 0.1), 0.9)*(male.placement.length-1));
-		
-		var gene1 = male.placement.slice(0,cutpoint);
-		var rot1 = male.rotation.slice(0,cutpoint);
-		
-		var gene2 = female.placement.slice(0,cutpoint);
-		var rot2 = female.rotation.slice(0,cutpoint);
-		
+
+		// choose the half genes of the parent 1
+		// save thier poisitions in an arrray
+		// 
 		var i;
+		var n = male.placement.length
+		var index=[]
+		for(i=0;i<(n/2);i++)
+		{
+			var rndInt = randomIntFromInterval(0, n)
+			if(! index.includes(rndInt)){
+				index.push(rndInt)
+			}
+			else{
+				i--;
+			}
+			
+		}
+		index.sort(compareNumbers);
 		
-		for(i=0; i<female.placement.length; i++){
-			if(!contains(gene1, female.placement[i].id)){
-				gene1.push(female.placement[i]);
-				rot1.push(female.rotation[i]);
+		var gene1 = male.placement.slice(0);
+		var rot1 = male.rotation.slice(0);
+		var gene2 = female.placement.slice(0);
+		var rot2 = female.rotation.slice(0);
+
+		var need_gene1=[]
+		var need_rot1=[]
+
+		for(i=0;i<n;i++)
+		{
+			if(!index.includes(i)){
+				need_gene1.push(gene1[i])
+				need_rot1.push(rot1[i])
+				gene1[i]=-1
+				rot1[i]=-1
 			}
 		}
-		
-		for(i=0; i<male.placement.length; i++){
-			if(!contains(gene2, male.placement[i].id)){
-				gene2.push(male.placement[i]);
-				rot2.push(male.rotation[i]);
+
+
+		var k =0;
+		for(i=0;i<n;i++)
+		{
+			if(gene1[i]==-1)
+			{
+				while(!need_gene1.includes (gene2[k]))
+				{
+					k++
+				}
+				gene1[i]=gene2[k]
+				rot1[i]=rot2[k]
+				k++
 			}
 		}
+	
 		
 		function contains(gene, id){
 			for(var i=0; i<gene.length; i++){
@@ -1021,46 +1053,60 @@ var startTime, endTime;
 			}
 			return false;
 		}
+		function randomIntFromInterval(min, max) { // min and max included 
+			return Math.floor(Math.random() * (max - min + 1) + min)
+		  }
+		  
+		function compareNumbers(a, b) {
+			return a - b;
+		}
 		
-		return [{placement: gene1, rotation: rot1},{placement: gene2, rotation: rot2}];
+		return [{placement: gene1, rotation: rot1}];
 	}
 
+
+
 	GeneticAlgorithm.prototype.generation = function(){
-				
+			
 		// Individuals with higher fitness are more likely to be selected for mating
 		this.population.sort(function(a, b){
 			return a.fitness - b.fitness;
 		});
-		
 		// fittest individual is preserved in the new generation (elitism)
-		var newpopulation = [this.population[0]];
-		
-		while(newpopulation.length < this.population.length){
-			var male = this.randomWeightedIndividual();
-			var female = this.randomWeightedIndividual(male);
-			
-			// each mating produces two children
-			var children = this.mate(male, female);
-			
-			// slightly mutate children
-			newpopulation.push(this.mutate(children[0]));
-				
-			if(newpopulation.length < this.population.length){
-				newpopulation.push(this.mutate(children[1]));
-			}
+		var eliteNumber= Math.round (this.population.length * 10 / 100) ;
+		var newpopulation = [];
+		for (var i=0;i<eliteNumber;i++)
+		{
+			newpopulation.push(this.population[i]);
 		}
-				
+		
+		var mutateNumber =Math.round ( eliteNumber/2)
+		while(newpopulation.length < this.population.length-mutateNumber){
+			var male = this.randomWeightedIndividual( this.population.slice(0,eliteNumber)); // elite
+			var female = this.randomWeightedIndividual(this.population.slice(eliteNumber+1));// rest
+			var children = this.mate(male, female);
+			newpopulation.push(this.mutate(children[0]));
+		}
+		
+		
+		var max = this.population.length -1 
+		var min = 0
+		while(newpopulation.length < this.population.length){
+
+
+			var index= Math.floor(Math.random() * (max - min + 1) + min)
+			var mutant = this.mutate(this.population[index]);
+			newpopulation.push(mutant);
+
+		}
 		this.population = newpopulation;
 	}
 	
 	// returns a random individual from the population, weighted to the front of the list (lower fitness value is more likely to be selected)
-	GeneticAlgorithm.prototype.randomWeightedIndividual = function(exclude){
-		var pop = this.population.slice(0);
+	GeneticAlgorithm.prototype.randomWeightedIndividual = function(pop){
+	
 		
-		if(exclude && pop.indexOf(exclude) >= 0){
-			pop.splice(pop.indexOf(exclude),1);
-		}
-		
+
 		var rand = Math.random();
 		
 		var lower = 0;
